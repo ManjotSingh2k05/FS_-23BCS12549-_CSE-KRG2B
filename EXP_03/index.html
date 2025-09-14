@@ -1,0 +1,102 @@
+<!-- To implement a dynamic product filtering system that updates displayed items based on user dropdown selection using JavaScript and DOM manipulation. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Product Filtering</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    select {
+      padding: 5px;
+      margin-bottom: 15px;
+    }
+    .products {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .product {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      width: 150px;
+      text-align: center;
+      background: #f9f9f9;
+      transition: transform 0.2s;
+    }
+    .product:hover {
+      transform: scale(1.05);
+    }
+    #feedback {
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>Dynamic Product Filtering System</h2>
+
+  <label for="category">Filter by Category: </label>
+  <select id="category">
+    <option value="all">All</option>
+    <option value="electronics">Electronics</option>
+    <option value="clothing">Clothing</option>
+    <option value="books">Books</option>
+  </select>
+
+  <div id="feedback"></div>
+
+  <div class="products" id="product-list"></div>
+
+  <script>
+    const products = [
+      { name: "Smartphone", category: "electronics" },
+      { name: "Laptop", category: "electronics" },
+      { name: "Headphones", category: "electronics" },
+      { name: "T-Shirt", category: "clothing" },
+      { name: "Jeans", category: "clothing" },
+      { name: "Jacket", category: "clothing" },
+      { name: "JavaScript Guide", category: "books" },
+      { name: "Data Structures Book", category: "books" },
+      { name: "Machine Learning Basics", category: "books" }
+    ];
+
+    const productList = document.getElementById("product-list");
+    const categoryDropdown = document.getElementById("category");
+    const feedback = document.getElementById("feedback");
+
+    function renderProducts(filteredProducts) {
+      productList.innerHTML = ""; 
+      if (filteredProducts.length === 0) {
+        feedback.textContent = "No products found.";
+      } else {
+        feedback.textContent = `Showing ${filteredProducts.length} product(s)`;
+      }
+
+      filteredProducts.forEach(p => {
+        const div = document.createElement("div");
+        div.classList.add("product");
+        div.textContent = p.name;
+        productList.appendChild(div);
+      });
+    }
+
+    function filterProducts() {
+      const selectedCategory = categoryDropdown.value;
+      const filtered = products.filter(p => 
+        selectedCategory === "all" || p.category === selectedCategory
+      );
+      renderProducts(filtered);
+    }
+
+    categoryDropdown.addEventListener("change", filterProducts);
+
+    renderProducts(products);
+  </script>
+</body>
+</html>
