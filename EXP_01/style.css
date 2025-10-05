@@ -1,0 +1,36 @@
+main{
+    font-family: 'Times New Roman', Times, serif;
+    max-width: 900px;
+}
+
+header{
+    text-align: center;
+    height: 40px;
+}
+
+h3{
+    padding-bottom: 1px;
+}
+
+#ar1{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    max-width: 500px;
+}
+#Image{
+    max-width: 250px;
+    height: auto;
+    text-align: center;
+}
+
+.skill_header{
+    background-color: rgb(128, 199, 230);
+    width:  150px;
+}
+
+#skill-table{
+    background-color: aliceblue;
+    height: 100px;
+    width: 700px;
+}
