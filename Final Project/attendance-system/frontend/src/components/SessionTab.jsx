@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from "react";
 
 
-// --- Configuration ---
+// Configuration 
 const API_BASE_URL = "http://localhost:8080/api/admin";
 const ADMIN_USER_ID = "admin_user_001";
 
 
 
-// --- Utility Functions (Self-Contained) ---
-/**
- * Executes a fetch request with exponential backoff and retries, 
- * but only retries GET requests to ensure idempotent (non-duplicate) writes.
- */
+// Utility Functions 
+
 const fetchWithRetry = async (url, options = {}, retries = 3) => {
     const method = options.method || 'GET';
     
-    // ✅ FIX: Only allow retries for safe (GET) methods. 
-    // Limit max attempts to 1 for POST, PUT, DELETE to prevent duplicate write operations.
     const maxAttempts = method === 'GET' ? retries : 1; 
 
     for (let i = 0; i < maxAttempts; i++) {
@@ -75,10 +70,8 @@ const ToastMessage = ({ message, type, onClose }) => {
     );
 };
 
-// --- QR Code Component (robust) ---
-// Strategy:
-// 1) If window.qrcodegen exists, use it and render inline SVG from it.
-// 2) Otherwise request an SVG from api.qrserver.com and inject it inline so we can serialize/download it.
+// --- QR Code Component ---
+
 const QRCodeSVG = ({ value, size = 256, margin = 2 }) => {
     const [svgString, setSvgString] = useState(null);
     const [error, setError] = useState(null);
@@ -91,21 +84,21 @@ const QRCodeSVG = ({ value, size = 256, margin = 2 }) => {
                 return;
             }
 
-            // If qrcodegen is available, use it
+
             if (typeof window !== "undefined" && window.qrcodegen && window.qrcodegen.QrCode) {
                 try {
                     const qr = window.qrcodegen.QrCode.encodeText(value, window.qrcodegen.QrCode.Ecc.MEDIUM);
-                    // qr.toSvgString exists in many qrcodegen builds; fallback to manual path if not
+                  
                     let svg = "";
                     if (typeof qr.toSvgString === "function") {
                         svg = qr.toSvgString(margin);
-                        // Ensure the svg has an id we can query later
+                       
                         svg = svg.replace("<svg ", `<svg id="qr-svg-export" width="${size}" height="${size}" `);
                     } else {
-                        // crude fallback: use toSvg (some versions) or build a minimal svg
-                        const raw = qr.toString(); // may be a text matrix representation
+                        
+                        const raw = qr.toString(); 
                         svg = `<svg id="qr-svg-export" width="${size}" height="${size}" viewBox="0 0 ${qr.size} ${qr.size}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="white" /><g>`;
-                        // try to read modules
+                        
                         if (qr.getModule) {
                             for (let y = 0; y < qr.size; y++) {
                                 for (let x = 0; x < qr.size; x++) {
@@ -124,23 +117,23 @@ const QRCodeSVG = ({ value, size = 256, margin = 2 }) => {
                     return;
                 } catch (e) {
                     console.error("qrcodegen render failed", e);
-                    // fall through to using external API
+                  
                 }
             }
 
-            // Fallback: fetch SVG from api.qrserver.com (public free service)
+            
             try {
                 const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&margin=${margin}&data=${encodeURIComponent(
                     value
                 )}&format=svg`;
                 const svg = await fetchWithRetry(apiUrl, { method: "GET" }, 3);
                 if (!svg || typeof svg !== "string") throw new Error("Invalid SVG response");
-                // Ensure the root svg has an id for download/selection
+                
                 let fixed = svg;
                 if (!/id=("|')qr-svg-export("|')/.test(fixed) && !/id=qr-svg-export/.test(fixed)) {
                     fixed = fixed.replace("<svg", `<svg id="qr-svg-export" width="${size}" height="${size}"`);
                 } else {
-                    // ensure width/height exist
+        
                     fixed = fixed.replace(/<svg([^>]*)>/, (m, g1) => {
                         if (!/width=/.test(g1)) g1 += ` width="${size}"`;
                         if (!/height=/.test(g1)) g1 += ` height="${size}"`;
@@ -188,7 +181,7 @@ const QRCodeSVG = ({ value, size = 256, margin = 2 }) => {
         );
     }
 
-    // Render inline SVG using dangerouslySetInnerHTML so download/serialization works
+    
     return (
         <div
             style={{ width: size, height: size }}
@@ -232,15 +225,14 @@ export default function SessionTab() {
                     },
                 });
 
-                // Convert backend data to frontend format
+               
                 const formatted = sessionsData.map((s) => {
-                    // Use 'expiresAt' from backend response
+                    
                     const expiresAt = new Date(s.expiresAt); 
-                    // Calculate time left in seconds
+                    
                     const timeLeft = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000));
                     
-                    // The backend token is in s.sessionToken, but the previous structure used s.id for session data
-                    // I will assume s.token is returned from the backend based on previous context, and fallback to s.sessionToken if needed.
+                   
                     const token = s.sessionToken || s.id; 
 
                     return {
@@ -249,7 +241,7 @@ export default function SessionTab() {
                         eligibleClasses: s.section,
                         createdAt: new Date().toLocaleString(),
                         qrValue: token,
-                        // The duration is not strictly needed on the front end if we use timeLeft/expiresAt
+                  
                         duration: 0, 
                         timeLeft,
                         status: timeLeft > 0 ? "Active" : "Expired",
@@ -265,7 +257,7 @@ export default function SessionTab() {
 
         loadSessions();
     }, []);
-    // Countdown effect for sessions
+
     useEffect(() => {
         const interval = setInterval(() => {
             setSessions((prevSessions) =>
@@ -273,7 +265,7 @@ export default function SessionTab() {
                     if (s.timeLeft > 0) {
                         return { ...s, timeLeft: s.timeLeft - 1 };
                     } else {
-                        // Mark as expired if time runs out
+                       
                         return { ...s, timeLeft: 0, status: "Expired" };
                     }
                 })
@@ -360,7 +352,7 @@ export default function SessionTab() {
                     "X-User-Id": ADMIN_USER_ID,
                 },
             });
-            // Expecting JSON array; if fetchWithRetry returned text, try parse
+   
             let parsed = records;
             if (typeof records === "string") {
                 try {
@@ -387,10 +379,9 @@ export default function SessionTab() {
     const handleDownloadQR = async () => {
         const svgElement = document.getElementById("qr-svg-export");
         if (!svgElement) {
-            // If the inline SVG wasn't added with that id, try to find first svg inside the modal
             const modal = document.querySelector('[id^="qr-svg-export"], [id="qr-svg-export"]') || document.querySelector(".qr-modal-inline svg");
             if (modal) {
-                // fallback to serializing that svg
+         
                 try {
                     const serializer = new XMLSerializer();
                     const source = serializer.serializeToString(modal);
@@ -434,24 +425,15 @@ export default function SessionTab() {
     };
 
     // --- SORTING LOGIC ---
-    // Sort active sessions (timeLeft > 0) to the top, and expired sessions (timeLeft <= 0) to the bottom.
     const sortedSessions = [...sessions].sort((a, b) => {
-        // Check if session A is active (1) or expired (0)
-        const aIsActive = a.timeLeft > 0 ? 1 : 0;
-        // Check if session B is active (1) or expired (0)
-        const bIsActive = b.timeLeft > 0 ? 1 : 0;
         
-        // Primary Sort: Active (1) vs. Expired (0)
-        // If the statuses are different, prioritize the active session
-        // bIsActive - aIsActive will result in:
-        //  1 - 0 = 1 (B active, A expired) -> B comes after A (A, B) -> INCORRECT. We want Active first.
-        //  0 - 1 = -1 (A active, B expired) -> A comes before B (A, B) -> CORRECT.
-        // We use bIsActive - aIsActive because 1 (Active) should come before 0 (Expired).
+        const aIsActive = a.timeLeft > 0 ? 1 : 0;
+        const bIsActive = b.timeLeft > 0 ? 1 : 0;
+
         if (aIsActive !== bIsActive) {
             return bIsActive - aIsActive; 
         }
         
-        // Secondary Sort: If both are the same status, sort by time left descending (longer time left first)
         return b.timeLeft - a.timeLeft;
     });
 

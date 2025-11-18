@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
-// Base URL for the new StudentController endpoints
 const API_BASE_URL = "http://localhost:8080/api/studntse";
 
 export default function StudentsTab() {
   const [expandedSection, setExpandedSection] = useState(null);
-  const [studentsData, setStudentsData] = useState([]); // Now dynamic
+  const [studentsData, setStudentsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -38,7 +37,6 @@ export default function StudentsTab() {
   };
 
   const handleAssignClick = (student, currentSection) => {
-    // Note: We assume the 'id' property in the student object is the database ID (Long userId).
     setSelectedStudent({ ...student, currentSection });
     setNewSection(currentSection);
   };
@@ -50,23 +48,20 @@ export default function StudentsTab() {
       return;
     }
     
-    // Check if the student has a valid ID before trying to update
     if (!selectedStudent.id) {
         alert("Error: Student ID is missing. Cannot update.");
         return;
     }
 
     try {
-      // API call to update the student's section in the database
       const response = await axios.put(`${API_BASE_URL}/assign/${selectedStudent.id}`, {
         newSection: newSection,
       });
 
-      // Clear the modal state
+ 
       setSelectedStudent(null);
       setNewSection("");
       
-      // Re-fetch all data to update the UI
       fetchStudents();
 
       alert(`Successfully moved ${response.data.name} to section ${newSection}!`);
@@ -77,7 +72,6 @@ export default function StudentsTab() {
     }
   };
   
-  // Render loading state
   if (isLoading) {
     return (
       <div className="bg-white rounded-xl shadow-md p-6 text-center text-gray-500">
@@ -87,7 +81,6 @@ export default function StudentsTab() {
     );
   }
   
-  // Render error state
   if (error) {
     return (
       <div className="bg-red-100 border border-red-400 text-red-700 rounded-xl shadow-md p-6">

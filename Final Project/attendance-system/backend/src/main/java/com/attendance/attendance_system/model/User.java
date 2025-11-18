@@ -20,7 +20,6 @@ public class User {
 
     private List<AttendanceRecord> attendanceRecords = new ArrayList<>();
 
-    // ✅ Add attendance session for a new session (when admin starts one)
     public void addAttendanceSession(String sessionId, String sessionName, boolean present, LocalDateTime joinTime) {
         if (attendanceRecords == null) {
             attendanceRecords = new ArrayList<>();
@@ -28,7 +27,6 @@ public class User {
         attendanceRecords.add(new AttendanceRecord(sessionId, sessionName, present, joinTime));
     }
 
-    // ✅ Mark student present for a session using token/sessionId
     public boolean markPresent(String token) {
         if (attendanceRecords == null) return false;
 
@@ -42,7 +40,6 @@ public class User {
         return false;
     }
 
-    // ✅ Inner class for individual attendance records
     @Data
     public static class AttendanceRecord {
         private String sessionId;

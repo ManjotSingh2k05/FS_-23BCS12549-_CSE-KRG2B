@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios"; // 👈 Import axios
+import axios from "axios";
 
 const Login = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();

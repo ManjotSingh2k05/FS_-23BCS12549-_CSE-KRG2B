@@ -47,6 +47,7 @@ public class StudentController {
         user.setSection(newSection);
         return ResponseEntity.ok(userRepository.save(user));
     }
+
     @PostMapping("/check-in")
     public ResponseEntity<String> markStudentPresent(@RequestParam String userId, @RequestParam String token) {
         Optional<User> optionalUser = userRepository.findById(userId);

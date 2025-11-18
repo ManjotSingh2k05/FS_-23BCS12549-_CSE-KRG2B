@@ -12,12 +12,12 @@ import java.time.LocalDateTime;
 @Document(collection = "sessions")
 public class Session {
     @Id
-    private String id;                // MongoDB ID (auto-generated)
-    private String sessionToken;      // Token shared with students
-    private String sessionName;       // "Math Class - 5 Nov"
-    private String section;           // e.g. "A"
-    private String createdBy;         // Admin ID or name
-    private LocalDateTime createdAt;  // When session started
-    private LocalDateTime expiresAt;  // Expiration time
-    private boolean active;           // Whether still valid
+    private String id;
+    private String sessionToken;
+    private String sessionName;
+    private String section;
+    private String createdBy;
+    private LocalDateTime createdAt;
+    private LocalDateTime expiresAt;
+    private boolean active;
 }

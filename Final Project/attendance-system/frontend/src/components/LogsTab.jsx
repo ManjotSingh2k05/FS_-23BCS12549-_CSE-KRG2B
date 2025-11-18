@@ -5,7 +5,7 @@ export default function LogsTab() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_URL = "https://your-backend.com/api/logs"; // set API
+  const API_URL = "https:/localhost:8080/api/logs"; // set API
 
   useEffect(() => {
     const fetchLogs = async () => {

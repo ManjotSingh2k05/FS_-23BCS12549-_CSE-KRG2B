@@ -14,8 +14,8 @@ public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
-    private static final String SIMULATED_USER_HEADER = "X-User-Id";
-    private static final String UNAUTHORIZED_USER = "unauthenticated";
+    private static final String userHeader = "X-User-Id";
+    private static final String unauthorizedUser = "unauthenticated";
 
     public AttendanceController(AttendanceService attendanceService) {
         this.attendanceService = attendanceService;
@@ -23,12 +23,12 @@ public class AttendanceController {
 
     @PostMapping("/check-in")
     public ResponseEntity<AttendanceResponse> checkIn(
-            @RequestHeader(value = SIMULATED_USER_HEADER, required = false) String userIdHeader,
+            @RequestHeader(value = userHeader, required = false) String userIdHeader,
             @RequestBody TokenRequest request) {
 
-        String userId = (userIdHeader != null && !userIdHeader.isEmpty()) ? userIdHeader : UNAUTHORIZED_USER;
+        String userId = (userIdHeader != null && !userIdHeader.isEmpty()) ? userIdHeader : unauthorizedUser;
 
-        if (UNAUTHORIZED_USER.equals(userId)) {
+        if (unauthorizedUser.equals(userId)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new AttendanceResponse("User must be logged in to check attendance.", HttpStatus.UNAUTHORIZED));
         }

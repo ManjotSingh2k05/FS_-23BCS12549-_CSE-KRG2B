@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-// Note: We are using a community package for QR scanning, assuming it's available in your environment.
 import { Html5QrcodeScanner } from "html5-qrcode"; 
 import { motion, AnimatePresence } from "framer-motion";
 
-// --- Configuration and Utilities ---
+// Configuration and Utilities 
 
-// const USER_ID = "simulated_student_123"; 
 const API_CHECK_IN_URL = "http://localhost:8080/api/attendance/check-in";
 
 let storedUser = null;
@@ -22,15 +20,14 @@ console.log("Loaded USER_ID:", USER_ID, "Stored User:", storedUser);
 
 
 
-/**
- * Helper function for robust API calls with exponential backoff.
- */
+
+//  Helper function for  API calls with exponential backoff.
+
 const fetchWithRetry = async (url, options, retries = 3) => {
   for (let i = 0; i < retries; i++) {
     try {
       const response = await fetch(url, options);
       
-      // If the response is not ok (4xx, 5xx), read the body to get the error message
       if (!response.ok) {
         const errorBody = await response.json();
         const errorMessage = errorBody.message || `Server error (Status: ${response.status})`;
@@ -85,7 +82,7 @@ export default function Profile({ setIsLoggedIn }) {
   const clearToast = () => setMessage(null);
 
 
-  // --- MOCK DATA ---
+
   const [attendanceRecords, setAttendanceRecords] = useState([
     {
       subject: "Math",
@@ -135,11 +132,10 @@ export default function Profile({ setIsLoggedIn }) {
     { title: "Seminar", date: "2025-09-25" },
     { title: "Extra Event", date: "2025-09-24" },
   ]);
-  // --- END MOCK DATA ---
+ 
 
 
   const handleLogout = () => {
-    // In a real app, this would involve clearing a JWT token or server-side session
     localStorage.removeItem("user");
     setIsLoggedIn(false);
     navigate("/");
@@ -152,11 +148,10 @@ export default function Profile({ setIsLoggedIn }) {
   const handleScan = async (decodedText) => {
   if (isScanning) return;
 
-  console.log("Decoded QR text:", decodedText); // 👀 Log scanned content
+  console.log("Decoded QR text:", decodedText);
 
-  // Filter out invalid blobs (camera or image links)
   if (!decodedText || decodedText.startsWith("blob:") || decodedText.length < 10) {
-    showToast("❌ Invalid QR code detected. Please scan a valid attendance QR.", "error");
+    showToast("Invalid QR code detected. Please scan a valid attendance QR.", "error");
     return;
   }
 
@@ -178,16 +173,15 @@ export default function Profile({ setIsLoggedIn }) {
       body: JSON.stringify({ token: decodedText }),
     });
 
-    // Safely parse the backend response
     if (result && typeof result === "object" && result.message) {
-      showToast(`✅ Check-in Success! ${result.message}`, "success");
+      showToast(`Check-in Success! ${result.message}`, "success");
     } else {
       showToast(`Attendance recorded, but status is unclear.`, "success");
       console.log("Unexpected result:", result);
     }
 
     } catch (error) {
-      showToast(`❌ Check-in Failed: ${error.message}`, "error");
+      showToast(`Check-in Failed: ${error.message}`, "error");
       console.error("Check-in error:", error);
     }   finally {
       setIsScanning(false);
@@ -201,26 +195,24 @@ export default function Profile({ setIsLoggedIn }) {
    */
   useEffect(() => {
     if (cameraOpen) {
-        // Show a message to the user while camera loads
         showToast("Accessing camera. Please hold QR code steady.", "info");
 
-        // Use a descriptive element ID for the scanner container
         scannerRef.current = new Html5QrcodeScanner("qr-reader", {
             fps: 10,
-            qrbox: {width: 250, height: 250}, // Define the scanning area size
-            disableFlip: false, // Allow camera mirroring
+            qrbox: {width: 250, height: 250},
+            disableFlip: false, 
         }, 
-        true // Verbose logging disabled
+        true 
         );
         
-        // Render the scanner with callbacks
+
         scannerRef.current.render(
             handleScan, 
-            (err) => console.warn(err) // Warning log for continuous scanning errors
+            (err) => console.warn(err) 
         );
         
     } else {
-        // Cleanup function for when the camera is closed or component unmounts
+        
         if (scannerRef.current) {
             scannerRef.current.clear().catch(e => {
                 console.warn("Failed to clear scanner:", e);
@@ -230,12 +222,12 @@ export default function Profile({ setIsLoggedIn }) {
     }
 
     return () => {
-      // Final cleanup on unmount
+    
       if (scannerRef.current) {
           scannerRef.current.clear().catch(() => {});
       }
     };
-  }, [cameraOpen]); // Dependency on cameraOpen state
+  }, [cameraOpen]); 
 
   const openSubjectModal = (subject) => {
     setSelectedSubject(subject);
@@ -247,7 +239,6 @@ export default function Profile({ setIsLoggedIn }) {
     setSelectedSubject(null);
   };
 
-  // Limit to latest 4 events for a clean dashboard view
   const latestEvents = events.slice(0, 4);
 
   return (
